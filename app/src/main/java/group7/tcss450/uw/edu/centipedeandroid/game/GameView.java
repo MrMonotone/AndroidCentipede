@@ -11,6 +11,10 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import java.util.ArrayList;
+import java.util.Random;
+
 import group7.tcss450.uw.edu.centipedeandroid.R;
 
 /**
@@ -151,6 +155,8 @@ class GameView extends SurfaceView implements Runnable {
     private boolean continueToRun = true;
 
     private int counter = 0;
+
+    private ArrayList<Mushroom> mShrooms;
     /*****************************************Constructor******************************************/
 
     /**
@@ -215,6 +221,17 @@ class GameView extends SurfaceView implements Runnable {
          * set the score
          */
         mScore = 0;
+
+        mShrooms = new ArrayList<>();
+        Random rand = new Random();
+
+        for(int i =0; i<15; i++) {
+
+            int x = rand.nextInt(mScreenSizeX) + 1;
+            int y = rand.nextInt(mScreenSizeY-200) + 100;
+            Mushroom shroom = new Mushroom(x,y,mBlockSize,mContext);
+            mShrooms.add(shroom);
+        }
 
         /**
          * Set the gamestate boolean to true.
@@ -333,18 +350,27 @@ class GameView extends SurfaceView implements Runnable {
             /**
              * Draw the mCentipede
              */
-        for (int i = 0; i<mCentipede.getCentipedes().size(); i++) {
-            CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
-            while (temp != null) {
-                if (temp.getVisible()) {
-                    mCanvas.drawBitmap(temp.getBitmap(),
-                            temp.getXCoord() - (temp.getWidth() / 2),
-                            temp.getYCoord() - (temp.getHeight() / 2),
+            for (int i = 0; i<mCentipede.getCentipedes().size(); i++) {
+                CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
+                while (temp != null) {
+                    if (temp.getVisible()) {
+                        mCanvas.drawBitmap(temp.getBitmap(),
+                                temp.getXCoord() - (temp.getWidth() / 2),
+                                temp.getYCoord() - (temp.getHeight() / 2),
+                                mPaint);
+                    }
+                    temp = temp.getNext();
+                }
+            }
+
+            for (Mushroom m : mShrooms) {
+                if (m.getHP() > 0) {
+                    mCanvas.drawBitmap(m.getBitmap(),
+                            m.getXCoord() - (m.getWidth() / 2),
+                            m.getYCoord() - (m.getHeight() / 2),
                             mPaint);
                 }
-                temp = temp.getNext();
             }
-        }
 
             /**
              * draw the mBullet
@@ -489,6 +515,14 @@ class GameView extends SurfaceView implements Runnable {
                         }
                         prev = temp;
                         temp = temp.getNext();
+                    }
+                }
+                for (Mushroom m : mShrooms) {
+                    if (m.getHP() > 0) {
+                        if (RectF.intersects(mPlayerBullet.getRect(), m.getRectF())) {
+                            m.setShroomHP();
+                            mPlayerBullet.setInactive();
+                        }
                     }
                 }
             } else {
