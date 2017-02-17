@@ -66,7 +66,7 @@ public class Mushroom {
 
     public void setShroomHP() {
         mHP--;
-        mBitmap = Bitmap.createScaledBitmap(mShrooms[mHP-1], mWidth, mHeight, false);
+        mBitmap = Bitmap.createScaledBitmap(mShrooms[mHP], mWidth, mHeight, false);
     }
 
     public Bitmap getBitmap() {

@@ -102,7 +102,7 @@ class Centipede {
      */
     private void createCentipede() {
         int k = 0;
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 11; i++) {
             if (i == 0) {
                 addNode(mBitmaps,mScreenX/STARTING_X , -(mScreenY/HEIGHT_DIVISOR)-k, mScreenX, mScreenY, true);
             } else {

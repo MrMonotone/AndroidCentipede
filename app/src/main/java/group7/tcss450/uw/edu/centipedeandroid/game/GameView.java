@@ -33,7 +33,7 @@ class GameView extends SurfaceView implements Runnable {
     private static int CENTIPEDE_DELAY = 2;
 
     /** Rate at which centipede position is updated */
-    private static int CENT_UPDATE_RATE = 10;
+    private static int CENT_UPDATE_RATE = 8;
 
     /**
      *
@@ -507,6 +507,8 @@ class GameView extends SurfaceView implements Runnable {
                         if (temp.getVisible()) {
                             if (RectF.intersects(mPlayerBullet.getRect(), temp.getRect())) {
                                 temp.setVisible(false);
+                                Mushroom newShroom = new Mushroom(temp.getXCoord(), temp.getYCoord(), mBlockSize, mContext);
+                                mShrooms.add(newShroom);
                                 mCentipede.splitCentipede(temp, prev); //method that splits the centupede
                                 mPlayerBullet.setInactive();
                                 mScore = mScore + (mScreenSizeY - (int) temp.getYCoord());
