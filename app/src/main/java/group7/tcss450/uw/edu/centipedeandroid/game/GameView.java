@@ -547,20 +547,20 @@ class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    private void checkMushroomCollision() {
-        for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
-            CentipedeBody curr = mCentipede.getCentipedes().get(i).getHead();
-            CentipedeBody prev = null;
-                if (curr.getVisible()) {
-                    for (Mushroom m: mShrooms) {
-                        if (RectF.intersects(m.getRectF(), curr.getRect())) {
-                            curr.moveDown(curr.getYCoord());
-                            curr.setDir(!curr.getEast());
-                        }
-                    }
-                }
-        }
-    }
+//    private void checkMushroomCollision() {
+//        for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
+//            CentipedeBody curr = mCentipede.getCentipedes().get(i).getHead();
+//            CentipedeBody prev = null;
+//                if (curr.getVisible()) {
+//                    for (Mushroom m: mShrooms) {
+//                        if (RectF.intersects(m.getRectF(), curr.getRect())) {
+//                            curr.moveDown(curr.getYCoord());
+//                            curr.setDir(!curr.getEast());
+//                        }
+//                    }
+//                }
+//        }
+//    }
 
 
 //    /**
