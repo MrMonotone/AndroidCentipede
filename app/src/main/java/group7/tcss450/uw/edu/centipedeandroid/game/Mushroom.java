@@ -40,8 +40,8 @@ public class Mushroom {
         mContext = context;
         mWidth = blocksize;
         mHeight = blocksize;
-        mHP = 4;
-        mShrooms = new Bitmap[4];
+        mHP = 5;
+        mShrooms = new Bitmap[5];
         mRectf = new RectF();
         createShroomBitmaps();
         setRectf();
@@ -58,10 +58,11 @@ public class Mushroom {
         Bitmap shroom2HP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.shroom2);
         Bitmap shroom1HP = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.shroom1);
         mShrooms[0] = shroom1HP;
-        mShrooms[1] = shroom2HP;
-        mShrooms[2] = shroom3HP;
-        mShrooms[3] = shroom;
-        ;
+        mShrooms[1] = shroom1HP;
+        mShrooms[2] = shroom2HP;
+        mShrooms[3] = shroom3HP;
+        mShrooms[4] = shroom;
+
     }
 
     public void setShroomHP() {

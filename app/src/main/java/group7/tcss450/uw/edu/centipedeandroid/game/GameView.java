@@ -227,8 +227,8 @@ class GameView extends SurfaceView implements Runnable {
 
         for(int i =0; i<15; i++) {
 
-            int x = rand.nextInt(mScreenSizeX) + 1;
-            int y = rand.nextInt(mScreenSizeY-200) + 100;
+            int x = rand.nextInt(mScreenSizeX-mBlockSize) + 1;
+            int y = rand.nextInt(mScreenSizeY-500) + 100;
             Mushroom shroom = new Mushroom(x,y,mBlockSize,mContext);
             mShrooms.add(shroom);
         }
@@ -498,6 +498,7 @@ class GameView extends SurfaceView implements Runnable {
              * Check the status of a player bullet.  If it is tesactive, update it's location,
              * If it is inactive, shoot a new bullet.
              */
+            //checkMushroomCollision();
             if(mPlayerBullet.getStatus()) {
                 mPlayerBullet.update(mFps);
                 for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
@@ -541,6 +542,24 @@ class GameView extends SurfaceView implements Runnable {
             counter++;
         }
     }
+
+//    private void checkMushroomCollision() {
+//        for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
+//            CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
+//            CentipedeBody prev = null;
+//            while (temp != null) {
+//                if (temp.getVisible()) {
+//                    for (Mushroom m: mShrooms) {
+//                        if (RectF.intersects(m.getRectF(), temp.getRect())) {
+//                            temp.moveDown(temp.getYCoord());
+//                        }
+//                    }
+//                }
+//                prev = temp;
+//                temp = temp.getNext();
+//            }
+//        }
+//    }
 
 //    /**
 //     * Getter for the current score, to be used for updating the score in the database.
