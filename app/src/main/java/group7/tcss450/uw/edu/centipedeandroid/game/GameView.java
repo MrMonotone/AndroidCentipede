@@ -6,6 +6,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -25,7 +26,10 @@ class GameView extends SurfaceView implements Runnable {
      * Constant to represent how much time the game should wait before the centipede enters the
      * screen.
      */
-    private static int CENTIPEDE_DELAY = 3;
+    private static int CENTIPEDE_DELAY = 2;
+
+    /** Rate at which centipede position is updated */
+    private static int CENT_UPDATE_RATE = 10;
 
     /**
      *
@@ -142,6 +146,11 @@ class GameView extends SurfaceView implements Runnable {
      */
     protected float mTouchY;
 
+    private int mSampleDurationTimer = 1000;
+
+    private boolean continueToRun = true;
+
+    private int counter = 0;
     /*****************************************Constructor******************************************/
 
     /**
@@ -252,39 +261,45 @@ class GameView extends SurfaceView implements Runnable {
              */
             if (DEBUG) {
                 int i = 1;
-                mCanvas.drawText(getContext().getString(R.string.screen_width) + mScreenSizeX,
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.screen_height) + mScreenSizeY,
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.fps) + mFps, FONT_SIZE_SMALL,
-                        10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.ship_x) + mPlayerShip.getX(),
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.ship_y) + mPlayerShip.getY(),
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.bullet_location) +
-                        mPlayerBullet.getX() + getContext().getString(R.string.comma) +
-                        mPlayerBullet.getY() + getContext().getString(R.string.para),
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.head_x) +
-                        mCentipede.getHead().getXCoord(), FONT_SIZE_SMALL,
-                        10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.head_y) +
-                        mCentipede.getHead().getYCoord(), FONT_SIZE_SMALL,
-                        10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.timer) +
-                        getElapsedTimeInSeconds(), FONT_SIZE_SMALL,
-                        10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.block_size) +
-                        mBlockSize, FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.score) + mScore,
-                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * (i + 1)), mPaint);
-                mCanvas.drawText(getContext().getString(R.string.segments) + mCentipede.getSize(),
-                        FONT_SIZE_LARGE, 10 + (FONT_SIZE_LARGE * 2), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.screen_width) + mScreenSizeX,
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.screen_height) + mScreenSizeY,
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.fps) + mFps, FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.ship_x) + mPlayerShip.getX(),
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.ship_y) + mPlayerShip.getY(),
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.bullet_location) +
+//                        mPlayerBullet.getX() + getContext().getString(R.string.comma) +
+//                        mPlayerBullet.getY() + getContext().getString(R.string.para),
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.head_x) +
+//                                mCentipede.getHead().getNext().getXCoord(), FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.head_x) +
+//                                mCentipede.getHead().getNext().getYCoord(), FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.head_x) +
+//                        mCentipede.getHead().getXCoord(), FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.head_y) +
+//                        mCentipede.getHead().getYCoord(), FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.timer) +
+//                        getElapsedTimeInSeconds(), FONT_SIZE_SMALL,
+//                        10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.block_size) +
+//                        mBlockSize, FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * i++), mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.score) + mScore,
+//                        FONT_SIZE_SMALL, 10 + (FONT_SIZE_SMALL * (i + 1)), mPaint);
             } else {
                 //Display score and amount of centipede bodies left.
                 mCanvas.drawText(getContext().getString(R.string.score) + mScore, FONT_SIZE_LARGE,
                         FONT_SIZE_LARGE + 10, mPaint);
+//                mCanvas.drawText(getContext().getString(R.string.segments) + mCentipede.getSize(),
+//                        FONT_SIZE_LARGE, 10 + (FONT_SIZE_LARGE * 2), mPaint);
             }
 
             /**
@@ -303,8 +318,8 @@ class GameView extends SurfaceView implements Runnable {
                         mScreenSizeY / 2 -(FONT_SIZE_LARGE), mPaint);
                 mCanvas.drawText(score, (mScreenSizeX / 2) - (scoreWidth / 2),
                         mScreenSizeY / 2, mPaint);
-                mCanvas.drawText(back, (mScreenSizeX / 2) - (backWidth / 2),
-                        mScreenSizeY / 2 +(FONT_SIZE_LARGE), mPaint);
+//                mCanvas.drawText(back, (mScreenSizeX / 2) - (backWidth / 2),
+//                        mScreenSizeY / 2 +(FONT_SIZE_LARGE), mPaint);
             }
 
             /**
@@ -318,7 +333,8 @@ class GameView extends SurfaceView implements Runnable {
             /**
              * Draw the mCentipede
              */
-            CentipedeBody temp = mCentipede.getHead();
+        for (int i = 0; i<mCentipede.getCentipedes().size(); i++) {
+            CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
             while (temp != null) {
                 if (temp.getVisible()) {
                     mCanvas.drawBitmap(temp.getBitmap(),
@@ -328,6 +344,7 @@ class GameView extends SurfaceView implements Runnable {
                 }
                 temp = temp.getNext();
             }
+        }
 
             /**
              * draw the mBullet
@@ -442,26 +459,37 @@ class GameView extends SurfaceView implements Runnable {
              *  Update the centipede
              */
             if (!(getElapsedTimeInSeconds() < CENTIPEDE_DELAY)) {
-                mCentipede.update();
+               if (counter % CENT_UPDATE_RATE == 0) { // small statement that updates the centipede on a delay. may be buggy??
+                   mCentipede.update();
+               }
             }
 
+
+//            if (!(getElapsedTimeInSeconds() < CENTIPEDE_DELAY)) {
+//                mCentipede.update();
+//            }
             /**
-             * Check the status of a player bullet.  If it is active, update it's location,
+             * Check the status of a player bullet.  If it is tesactive, update it's location,
              * If it is inactive, shoot a new bullet.
              */
             if(mPlayerBullet.getStatus()) {
                 mPlayerBullet.update(mFps);
-                CentipedeBody temp = mCentipede.getHead();
-                while (temp != null) {
-                    if (temp.getVisible()) {
-                        if (RectF.intersects(mPlayerBullet.getRect(), temp.getRect())) {
-                            temp.setVisible(false);
-                            mPlayerBullet.setInactive();
-                            mScore = mScore + (mScreenSizeY - (int) temp.getYCoord());
-                            mCentipede.setSize();
+                for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
+                    CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
+                    CentipedeBody prev = null;
+                    while (temp != null) {
+                        if (temp.getVisible()) {
+                            if (RectF.intersects(mPlayerBullet.getRect(), temp.getRect())) {
+                                temp.setVisible(false);
+                                mCentipede.splitCentipede(temp, prev); //method that splits the centupede
+                                mPlayerBullet.setInactive();
+                                mScore = mScore + (mScreenSizeY - (int) temp.getYCoord());
+                                mCentipede.setSize();
+                            }
                         }
+                        prev = temp;
+                        temp = temp.getNext();
                     }
-                    temp = temp.getNext();
                 }
             } else {
 
@@ -474,6 +502,7 @@ class GameView extends SurfaceView implements Runnable {
             if(mPlayerBullet.getY() < 0) {
                 mPlayerBullet.setInactive();
             }
+            counter++;
         }
     }
 

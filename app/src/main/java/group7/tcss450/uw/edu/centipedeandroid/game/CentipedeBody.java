@@ -1,7 +1,13 @@
 package group7.tcss450.uw.edu.centipedeandroid.game;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.RectF;
+
+import java.util.ArrayList;
+
+import group7.tcss450.uw.edu.centipedeandroid.R;
 
 /**
  * CentipedeBody class that acts as a node class that tracks the next node and also keeps track of
@@ -69,12 +75,11 @@ public class CentipedeBody {
     /** Speed of the centipede */
     private int mSpeed;
 
-    /**
-     * Constructor for empty node.
-     */
-    public CentipedeBody() {
-        isVisible  = true;
-    }
+    private boolean isHead;
+
+    private ArrayList<Bitmap> mBitmaps;
+
+    private float mDir;
 
     /**
      * Constructor for CentipedeBody. Initializes variable.
@@ -86,20 +91,27 @@ public class CentipedeBody {
      * @param screenY  The Y dimensions of the parent activity.
      * @param block is the block sie of the centipedebody.
      */
-    public CentipedeBody(Bitmap bitImage, int xPos, int yPos, int screenX, int screenY, int block) {
-        mCentiBody = bitImage;
+    public CentipedeBody(ArrayList<Bitmap> bitImage, int xPos, int yPos, int screenX, int screenY, int block, boolean isHead) {
+        if (isHead) {
+            mCentiBody = bitImage.get(1);
+        } else {
+            mCentiBody = bitImage.get(0);
+        }
+        mDir = 0;
+        mBitmaps = bitImage;
         mXCoord = xPos;
         mYCoord = yPos;
+        this.isHead = isHead;
         mScreenX = screenX;
         mScreenY = screenY;
         mNext = null;
         mWidth = block;
         mHeight = block;
-        //mPrev = null;
         mEast = true;
         mWest = false;
         mCentiBody = Bitmap.createScaledBitmap(mCentiBody, mWidth, mHeight, false);
         isVisible = true;
+        mSpeed = mWidth;
         mRectf = new RectF();
     }
 
@@ -154,6 +166,12 @@ public class CentipedeBody {
         return mYCoord;
     }
 
+    public void setHeadBitmap(int i) {
+        if (isHead) {
+            mCentiBody = Bitmap.createScaledBitmap(mBitmaps.get(i), mWidth, mHeight, false);
+        }
+    }
+
 //    public CentipedeBody getPrev() {
 //        return mPrev;
 //    }
@@ -205,55 +223,73 @@ public class CentipedeBody {
      *
      * @param yPos the current y pos of the node.
      */
-    private void moveDown(float yPos) {
-        if (yPos < 0) {
-            mYCoord += 5;
-        } else {
-            mYCoord += mHeight;
-        }
+    public float moveDown(float yPos) {
+        return  mYCoord += mHeight;
     }
 
     /**
      * Method that moves the centipede body right.
      */
-    private void moveRight() {
-        mXCoord += 5;
+    private float moveRight() {
+        return mXCoord += mSpeed;
     }
 
     /**
      * Method that moves the centipede body left.
      */
-    private void moveLeft() {
-        mXCoord -= 5;
+    private float moveLeft() {
+       return mXCoord -= mSpeed;
     }
 
-    /**
-     * Method that sets the speed of the centipede.
-     *
-     * @param newSpeed is an integer speed of the body.
-     */
-    private void setSpeed(int newSpeed) {
-        mSpeed = newSpeed;
+    public int getSpeed() {
+        return mSpeed;
     }
 
+//    /**
+//     * Method that sets the speed of the centipede.
+//     *
+//     * @param newSpeed is an integer speed of the body.
+//     */
+//    private void setSpeed(int newSpeed) {
+//        mSpeed = newSpeed;
+//    }
+//
     /**
      * Method that sets the direction west for movement.
      *
-     * @param west  a boolean true or false if the body moves west.
+     * @param east  a boolean true or false if the body moves west.
      */
-    public void setWest(boolean west) {
-        this.mWest = west;
-    }
-
-    /**
-     * Method that sets the direction east for movement.
-     *
-     * @param east  a boolean true or false if the body moves east.
-     */
-    public void setEast(boolean east) {
+    public void setDir(boolean east) {
         this.mEast = east;
     }
 
+    public boolean getEast() {
+        return mEast;
+    }
+
+    public void setHead(boolean theHead) {
+        this.isHead = theHead;
+        mCentiBody = Bitmap.createScaledBitmap(mBitmaps.get(3), mWidth, mHeight, false);
+    }
+
+    public boolean isHead() {
+        return isHead;
+    }
+
+    public float getDir() {
+        return mDir;
+    }
+
+    public void setDirCoord(float xCoord, float yCoord) {
+        this.mXCoord = xCoord;
+        this.mYCoord = yCoord;
+    }
+    public void setRectf() {
+        mRectf.left = mXCoord;
+        mRectf.right = mXCoord + mWidth;
+        mRectf.top = mYCoord;
+        mRectf.bottom = mYCoord + mHeight;
+    }
 
     /**
      * Getter for the hitbox.
@@ -274,24 +310,27 @@ public class CentipedeBody {
 //            setBitmap(mCentipedeHead);
 //        }
         if (mYCoord < MIN_BOUNDARY) {
-            moveDown(mYCoord);
+            mDir = moveDown(mYCoord);
         } else {
             if (mEast == true) {
-                if (mXCoord >= (mScreenX-mWidth)) {
-                    moveDown(mYCoord);
+                if (mXCoord >= (mScreenX - mWidth)) {
+                    setHeadBitmap(0);
+                    mDir = moveDown(mYCoord);
                     mEast = false;
                 } else {
-                    moveRight();
+                    setHeadBitmap(2);
+                    mDir = moveRight();
                 }
             } else {
-                if (mXCoord <= (MIN_BOUNDARY-mWidth/3)) {
-                    moveDown(mYCoord);
+                if (mXCoord <= (MIN_BOUNDARY - mWidth / 3)) {
+                    setHeadBitmap(0);
+                    mDir = moveDown(mYCoord);
                     mEast = true;
                 }
-                moveLeft();
+                setHeadBitmap(3);
+                mDir = moveLeft();
             }
         }
-
         mRectf.left = mXCoord;
         mRectf.right = mXCoord + mWidth;
         mRectf.top = mYCoord;

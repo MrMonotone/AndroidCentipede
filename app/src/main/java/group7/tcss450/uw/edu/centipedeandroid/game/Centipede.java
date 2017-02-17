@@ -3,6 +3,10 @@ package group7.tcss450.uw.edu.centipedeandroid.game;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 import group7.tcss450.uw.edu.centipedeandroid.R;
 /**
  * Centipede class that works as a linked list of nodes which are centipede bodies.
@@ -27,9 +31,6 @@ class Centipede {
     /** Size of each square in the boards grid*/
     private int mBlockSize;
 
-    /** Bitmap of the centipede head */
-    private Bitmap mCentipedeHead;
-
     /** Size of Y axis of screen */
     private int mScreenY;
 
@@ -42,8 +43,9 @@ class Centipede {
     /** Head node of the centipede */
     private CentipedeBody mHead;
 
-    // debugging
-//    private int b;
+    private ArrayList<Centipede> mCentipedes;
+
+    private ArrayList<Bitmap> mBitmaps;
 
     /**
      * Centipede constructor that takes in a centipedebody
@@ -52,6 +54,7 @@ class Centipede {
      */
     public Centipede(CentipedeBody head) {
         mHead = head;
+        mCentipedes = new ArrayList<>();
         CentipedeBody temp = mHead;
         while (temp != null) {
             mSize++;
@@ -70,38 +73,48 @@ class Centipede {
     Centipede(Context context, int screenX, int screenY, int block) {
         mScreenY = screenY;
         mScreenX = screenX;
+        mCentipedes = new ArrayList<>();
         mSize = 0;
         mHead = null;
         mBlockSize = block;
         boolean isStart = true;
-        Bitmap bodyBitmap = BitmapFactory.decodeResource(context.getResources(), R.drawable.centipede);
-        mCentipedeHead =  BitmapFactory.decodeResource(context.getResources(), R.drawable.centipedehead2);
+        createBitmaps(context);
         if (isStart) {
-            createCentipede(bodyBitmap);
+            createCentipede();
             isStart = false;
         }
     }
 
+    public void createBitmaps(Context theContext) {
+        mBitmaps = new ArrayList<>();
+        Bitmap bodyBitmap = BitmapFactory.decodeResource(theContext.getResources(), R.drawable.centipede);
+        Bitmap headSouth = BitmapFactory.decodeResource(theContext.getResources(), R.drawable.centipedeheadsouth);  // fix these drawable names!!!!!!!!!
+        Bitmap headEast = BitmapFactory.decodeResource(theContext.getResources(), R.drawable.centipedeheadeast);
+        Bitmap headWest = BitmapFactory.decodeResource(theContext.getResources(), R.drawable.westhead);
+        mBitmaps.add(bodyBitmap);
+        mBitmaps.add(headSouth);
+        mBitmaps.add(headEast);
+        mBitmaps.add(headWest);
+    }
+
     /**
      * Method that creates the centipede bodies.
-     * @param bitmap the bitmap image used for the bodies.
      */
-    private void createCentipede(Bitmap bitmap) {
+    private void createCentipede() {
         int k = 0;
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 4; i++) {
             if (i == 0) {
-                addNode(mCentipedeHead,mScreenX/STARTING_X, -(mScreenY/HEIGHT_DIVISOR)-k, mScreenX, mScreenY);
+                addNode(mBitmaps,mScreenX/STARTING_X , -(mScreenY/HEIGHT_DIVISOR)-k, mScreenX, mScreenY, true);
             } else {
-                addNode(bitmap,mScreenX/STARTING_X, -(mScreenY/HEIGHT_DIVISOR)-k, mScreenX, mScreenY);
+                addNode(mBitmaps,mScreenX/STARTING_X , -(mScreenY/HEIGHT_DIVISOR)-k, mScreenX, mScreenY, false);
             }
             k+=mHead.getHeight();
         }
     }
 
-    // testing and debugging does nothing
-//    public int getB() {
-//        return b;
-//    }
+    public Bitmap getHeadBitmap(int i) {
+        return mBitmaps.get(i);
+    }
 
     /**
      * Method that adds a node to the list and checks if the
@@ -113,10 +126,11 @@ class Centipede {
      * @param xPos is the x position of the node.
      * @param yPos is the y position of the node.
      */
-    private void addNode(Bitmap bitmap, int xPos, int yPos, int screenX, int screenY) {
-        CentipedeBody newNode = new CentipedeBody(bitmap, xPos, yPos, screenX, screenY, mBlockSize);
+    private void addNode(ArrayList<Bitmap> bitmap, int xPos, int yPos, int screenX, int screenY, boolean isHead) {
+        CentipedeBody newNode = new CentipedeBody(bitmap, xPos, yPos, screenX, screenY, mBlockSize, isHead);
         if (mHead == null) {
             mHead = newNode;
+            mCentipedes.add(this);
         } else {
             CentipedeBody temp = mHead;
             while (temp.getNext() != null) {
@@ -127,6 +141,26 @@ class Centipede {
         mSize++;
     }
 
+    /**
+     *  Method that splits the current centipede where ever the cur node is.
+     *
+     * @param theCur current node pointed at.
+     * @param thePrev the previous node in the list.
+     */
+    public void splitCentipede(CentipedeBody theCur, CentipedeBody thePrev) {
+            if (theCur.getNext() != null) {
+                theCur.getNext().setHead(true);
+                theCur.getNext().moveDown(theCur.getNext().getYCoord());
+                theCur.getNext().setDir(!theCur.getEast());
+                theCur.getNext().setRectf();
+                if (thePrev != null) {
+                    thePrev.setNext(null);
+                }
+
+            }
+        Centipede newCent = new Centipede(theCur.getNext());
+        mCentipedes.add(newCent);
+    }
     /**
      * Getter method that returns the head node of the centipede.
      *
@@ -144,6 +178,9 @@ class Centipede {
         return this.mSize;
     }
 
+    public ArrayList<Centipede> getCentipedes() {
+        return mCentipedes;
+    }
     /**
      *  Setter that sets the size of the centipede.
      */
@@ -154,16 +191,39 @@ class Centipede {
     }
 
     /**
-     * Method that calls all of the centipede nodes update method that updates where
-     * each node is on the screen.
+     * Method that updates the head node in each centipede and makes each following
+     * node take the position of the one ahead of it. Only head nodes use update().
      */
     void update() {
-        CentipedeBody temp = mHead;
-        while (temp != null) {
-            if (temp.getVisible()) {
-                temp.update();
+        for (int i = 0; i < mCentipedes.size(); i++) {
+            CentipedeBody temp = mCentipedes.get(i).getHead();
+            CentipedeBody prev = null;
+            float newY = 0;
+            float newX = 0;
+            float yDir = 0;
+            float xDir = 0;
+           // int speed = 0;
+            while (temp != null) {
+                if (temp.getVisible()) {
+                    if (prev == null  || temp.isHead()) {
+                       // speed = temp.getSpeed();
+                        newX = temp.getXCoord();
+                        newY = temp.getYCoord();
+                        xDir = newX;
+                        yDir = newY;
+                        temp.update();
+                    } else {
+                        xDir = temp.getXCoord();
+                        yDir = temp.getYCoord();
+                        temp.setDirCoord(newX, newY);
+                        temp.setRectf();
+                    }
+                }
+                newX = xDir;
+                newY = yDir;
+                prev = temp;
+                temp = temp.getNext();
             }
-            temp = temp.getNext();
         }
     }
 }
