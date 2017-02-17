@@ -501,7 +501,7 @@ class GameView extends SurfaceView implements Runnable {
              * Check the status of a player bullet.  If it is tesactive, update it's location,
              * If it is inactive, shoot a new bullet.
              */
-            checkMushroomCollision();
+            //checkMushroomCollision();
             if(mPlayerBullet.getStatus()) {
                 mPlayerBullet.update(mFps);
                 for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
