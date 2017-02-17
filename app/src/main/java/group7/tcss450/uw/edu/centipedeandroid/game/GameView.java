@@ -24,6 +24,7 @@ import group7.tcss450.uw.edu.centipedeandroid.R;
 @SuppressLint("ViewConstructor")
 class GameView extends SurfaceView implements Runnable {
 
+
     /****************************************Constants*********************************************/
 
     /**
@@ -39,6 +40,8 @@ class GameView extends SurfaceView implements Runnable {
      *
      */
     private static boolean DEBUG = false;
+
+    private static final int MUSHROOM_SCORE = 25;
 
     /**
      * Constant to determine the size of the font.
@@ -498,7 +501,7 @@ class GameView extends SurfaceView implements Runnable {
              * Check the status of a player bullet.  If it is tesactive, update it's location,
              * If it is inactive, shoot a new bullet.
              */
-            //checkMushroomCollision();
+            checkMushroomCollision();
             if(mPlayerBullet.getStatus()) {
                 mPlayerBullet.update(mFps);
                 for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
@@ -525,6 +528,7 @@ class GameView extends SurfaceView implements Runnable {
                         if (RectF.intersects(mPlayerBullet.getRect(), m.getRectF())) {
                             m.setShroomHP();
                             mPlayerBullet.setInactive();
+                            mScore += MUSHROOM_SCORE;
                         }
                     }
                 }
@@ -543,23 +547,21 @@ class GameView extends SurfaceView implements Runnable {
         }
     }
 
-//    private void checkMushroomCollision() {
-//        for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
-//            CentipedeBody temp = mCentipede.getCentipedes().get(i).getHead();
-//            CentipedeBody prev = null;
-//            while (temp != null) {
-//                if (temp.getVisible()) {
-//                    for (Mushroom m: mShrooms) {
-//                        if (RectF.intersects(m.getRectF(), temp.getRect())) {
-//                            temp.moveDown(temp.getYCoord());
-//                        }
-//                    }
-//                }
-//                prev = temp;
-//                temp = temp.getNext();
-//            }
-//        }
-//    }
+    private void checkMushroomCollision() {
+        for (int i = 0; i < mCentipede.getCentipedes().size(); i++) {
+            CentipedeBody curr = mCentipede.getCentipedes().get(i).getHead();
+            CentipedeBody prev = null;
+                if (curr.getVisible()) {
+                    for (Mushroom m: mShrooms) {
+                        if (RectF.intersects(m.getRectF(), curr.getRect())) {
+                            curr.moveDown(curr.getYCoord());
+                            curr.setDir(!curr.getEast());
+                        }
+                    }
+                }
+        }
+    }
+
 
 //    /**
 //     * Getter for the current score, to be used for updating the score in the database.
