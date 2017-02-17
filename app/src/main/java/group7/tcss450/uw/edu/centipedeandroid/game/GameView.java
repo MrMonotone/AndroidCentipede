@@ -36,6 +36,10 @@ class GameView extends SurfaceView implements Runnable {
     /** Rate at which centipede position is updated */
     private static int CENT_UPDATE_RATE = 8;
 
+    private static int MUSHROOM_COUNT = 15;
+
+    private static int PLAYER_BOUNDARY = 500;
+
     /**
      *
      */
@@ -228,10 +232,10 @@ class GameView extends SurfaceView implements Runnable {
         mShrooms = new ArrayList<>();
         Random rand = new Random();
 
-        for(int i =0; i<15; i++) {
+        for(int i =0; i < MUSHROOM_COUNT; i++) {
 
             int x = rand.nextInt(mScreenSizeX-mBlockSize) + 1;
-            int y = rand.nextInt(mScreenSizeY-500) + 100;
+            int y = rand.nextInt(mScreenSizeY-PLAYER_BOUNDARY) + 100;
             Mushroom shroom = new Mushroom(x,y,mBlockSize,mContext);
             mShrooms.add(shroom);
         }
@@ -523,6 +527,8 @@ class GameView extends SurfaceView implements Runnable {
                         temp = temp.getNext();
                     }
                 }
+
+                // HIT BOXES ARE WEIRD THEY ARE RIGHT DOMINANT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 for (Mushroom m : mShrooms) {
                     if (m.getHP() > 0) {
                         if (RectF.intersects(mPlayerBullet.getRect(), m.getRectF())) {
