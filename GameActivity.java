@@ -1,17 +1,17 @@
 package group7.tcss450.uw.edu.centipedeandroid.game;
 
+import android.app.Activity;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+//import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Display;
 import java.math.BigInteger;
 
 import group7.tcss450.uw.edu.centipedeandroid.R;
-import group7.tcss450.uw.edu.centipedeandroid.authentication.RegisterFragment;
 import group7.tcss450.uw.edu.centipedeandroid.menu.GameOverFragment;
+import group7.tcss450.uw.edu.centipedeandroid.menu.MenuFragment;
 
 public class GameActivity extends AppCompatActivity implements GameOverFragment.OnFragmentInteractionListener {
 
@@ -108,15 +108,13 @@ public class GameActivity extends AppCompatActivity implements GameOverFragment.
         calculateBlockSize();
 
         /*Initialize Gameview object and set the content to it.*/
-//        mGameView = new GameView(this, mWidth, mHeight, mBlockSize);
-//        setContentView(mGameView);
-
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        GameOverFragment fragment = new GameOverFragment();
-        fragmentTransaction.replace(R.id.activity_game, fragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
+        mGameView = new GameView(this, mWidth, mHeight, mBlockSize);
+        setContentView(mGameView);
+//        GameOverFragment gameOver = new GameOverFragment();
+//        this.getFragmentManager().beginTransaction()
+//                .replace(R.id.activity_menu, gameOver, "Game Over Fragment")
+//                .addToBackStack(null)
+//                .commit();
     }
 
     /**
@@ -135,6 +133,14 @@ public class GameActivity extends AppCompatActivity implements GameOverFragment.
     protected void onResume() {
         super.onResume();
         mGameView.resume();
+    }
+
+    public void launchOver() {
+//        GameOverFragment gameOver = new GameOverFragment();
+//        this.getSupportFragmentManager().beginTransaction()
+//                .replace(R.id.activity_menu, gameOver, "Game Over Fragment")
+//                .addToBackStack(null)
+//                .commit();
     }
 
     /*****************************************Private Methods**************************************/
@@ -176,7 +182,9 @@ public class GameActivity extends AppCompatActivity implements GameOverFragment.
         }
     }
 
+    @Override
     public void onFragmentInteraction(Uri uri) {
 
     }
+
 }
