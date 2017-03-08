@@ -1,13 +1,20 @@
 package group7.tcss450.uw.edu.centipedeandroid.menu;
 
-import android.app.Fragment;
+
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
-//import android.support.v4.app.Fragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import group7.tcss450.uw.edu.centipedeandroid.R;
 
@@ -19,7 +26,7 @@ import group7.tcss450.uw.edu.centipedeandroid.R;
  * Use the {@link MenuFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MenuFragment extends Fragment implements View.OnClickListener {
+public class MenuFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener  {
     // UNUSED
 
 //    private static final String ARG_PARAM1 = "param1";
@@ -29,7 +36,20 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
 //    private String mParam2;
     // UNUSED
 
+    /**
+     *  Listener for the start of the game.
+     */
     private OnStartGame mListener;
+
+    /**
+     * int of the song track.
+     */
+    private int mSong;
+    /**
+     * Song listener for track id's.
+     */
+    private SendSong mSendSong;
+
 
     public MenuFragment() {
         // Required empty public constructor
@@ -59,6 +79,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        mSong = 0;
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
@@ -77,13 +98,51 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_menu, container, false);
-        Button b = (Button)v.findViewById(R.id.startButton);
+        Button b = (Button)v.findViewById(R.id.playButton);
         b.setOnClickListener(this);
-        b = (Button)v.findViewById(R.id.startPlayerButton);
+        b = (Button)v.findViewById(R.id.highScoreButton);
         b.setOnClickListener(this);
 
-        // Inflate the layout for this fragment
+        Spinner musicSpinner = (Spinner) v.findViewById(R.id.musicSpinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this.getContext(),
+                R.array.music_list, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        musicSpinner.setAdapter(adapter);
+        musicSpinner.setOnItemSelectedListener(this);
+        musicSpinner.setPrompt("Pick in game music");
+
         return v;
+    }
+
+    /**
+     * Method that checks for items selected in the spinner
+     *
+     * @param parent
+     * @param view
+     * @param pos
+     * @param id
+     */
+    public void onItemSelected(AdapterView<?> parent, View view,
+                               int pos, long id) {
+        mSendSong.songNum(pos);
+    }
+
+    /**
+     * Method for if nothing is selected in the spinner.
+     * @param parent
+     */
+    public void onNothingSelected(AdapterView<?> parent) {
+        mSendSong.songNum(0);
+    }
+
+
+    /**
+     * Returns the string name of the song wanted to be played.
+     *
+     * @return a string representation of the sogn name.
+     */
+    public int getSong() {
+        return mSong;
     }
 
     /**
@@ -93,6 +152,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mSendSong = (SendSong) context;
         if (context instanceof OnStartGame) {
             mListener = (OnStartGame) context;
         } else {
@@ -122,6 +182,7 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
                     mListener.onStartGame();
                     break;
                 case R.id.highScoreButton:
+                    mListener.onPlayer();
                     break;
                 default:
                     break;
@@ -129,6 +190,12 @@ public class MenuFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * Listener for the track ID.
+     */
+    public interface SendSong {
+        public void songNum(int theSong);
+    }
     /**
      * Listeners for game menu items
      */
